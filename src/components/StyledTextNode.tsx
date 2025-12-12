@@ -1,18 +1,19 @@
-import { $applyNodeReplacement, TextNode, SerializedTextNode, Spread } from 'lexical';
+import { $applyNodeReplacement, TextNode } from 'lexical';
+import type { SerializedTextNode, Spread } from 'lexical';
 
 export type SerializedStyledTextNode = Spread<
   {
-    style?: string;
+    inlineStyle?: string;
   },
   SerializedTextNode
 >;
 
 export class StyledTextNode extends TextNode {
-  __style?: string;
+  __inlineStyle?: string;
 
-  constructor(text: string, style?: string, key?: string) {
+  constructor(text: string, inlineStyle?: string, key?: string) {
     super(text, key);
-    this.__style = style;
+    this.__inlineStyle = inlineStyle;
   }
 
   static getType(): string {
@@ -20,57 +21,62 @@ export class StyledTextNode extends TextNode {
   }
 
   static clone(node: StyledTextNode): StyledTextNode {
-    return new StyledTextNode(node.__text, node.__style, node.__key);
+    return new StyledTextNode(node.__text, node.__inlineStyle, node.__key);
   }
 
   createDOM(config: any): HTMLElement {
     const element = super.createDOM(config);
-    if (this.__style) {
-      const span = document.createElement('span');
-      span.setAttribute('style', this.__style);
-      span.textContent = this.__text;
-      return span;
+    if (this.__inlineStyle) {
+      element.setAttribute('style', this.__inlineStyle);
     }
     return element;
   }
 
-  updateDOM(prevNode: StyledTextNode, dom: HTMLElement, config: any): boolean {
-    const isUpdated = super.updateDOM(prevNode, dom, config);
-    if (prevNode.__style !== this.__style) {
-      if (this.__style) {
-        dom.setAttribute('style', this.__style);
+  updateDOM(prevNode: TextNode, dom: HTMLElement, config: any): boolean {
+    const prevStyledNode = prevNode as StyledTextNode;
+    const hasStyleChanged = prevStyledNode.__inlineStyle !== this.__inlineStyle;
+    
+    if (hasStyleChanged) {
+      if (this.__inlineStyle) {
+        dom.setAttribute('style', this.__inlineStyle);
       } else {
         dom.removeAttribute('style');
       }
     }
-    return isUpdated;
+    
+    // Return true if anything changed (let base class handle text updates via createDOM)
+    return super.updateDOM(prevNode as this, dom, config) || hasStyleChanged;
   }
 
   static importJSON(serializedNode: SerializedStyledTextNode): StyledTextNode {
-    const node = $createStyledTextNode(serializedNode.text, serializedNode.style);
+    const node = $createStyledTextNode(serializedNode.text, serializedNode.inlineStyle);
     node.setFormat(serializedNode.format);
     node.setDetail(serializedNode.detail);
     node.setMode(serializedNode.mode);
-    node.setStyle(serializedNode.style);
+    if (serializedNode.inlineStyle) {
+      node.setInlineStyle(serializedNode.inlineStyle);
+    }
     return node;
   }
 
   exportJSON(): SerializedStyledTextNode {
     return {
       ...super.exportJSON(),
-      style: this.__style,
+      inlineStyle: this.__inlineStyle,
       type: 'styled-text',
       version: 1,
     };
   }
 
-  setStyle(style?: string): void {
+  setInlineStyle(inlineStyle?: string): this {
     const writable = this.getWritable();
-    writable.__style = style;
+    (writable as StyledTextNode).__inlineStyle = inlineStyle;
+    return writable;
   }
 
-  getStyle(): string | undefined {
-    return this.__style;
+  getInlineStyle(): string | undefined {
+    const self = this.getLatest();
+    return (self as StyledTextNode).__inlineStyle;
   }
 }
 
