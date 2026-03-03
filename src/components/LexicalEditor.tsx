@@ -64,31 +64,31 @@ export function LexicalEditor({ htmlContent, onEditorStateChange }: LexicalEdito
   const initialConfig = {
     namespace: 'HTMLToLexicalDemo',
     theme: {
-      paragraph: 'mb-2',
+      paragraph: 'editor-paragraph',
       heading: {
-        h1: 'text-4xl font-bold mb-4',
-        h2: 'text-3xl font-bold mb-3',
-        h3: 'text-2xl font-bold mb-2',
-        h4: 'text-xl font-bold mb-2',
-        h5: 'text-lg font-bold mb-2',
-        h6: 'text-base font-bold mb-2',
+        h1: 'editor-heading-h1',
+        h2: 'editor-heading-h2',
+        h3: 'editor-heading-h3',
+        h4: 'editor-heading-h4',
+        h5: 'editor-heading-h5',
+        h6: 'editor-heading-h6',
       },
       list: {
-        ul: 'list-disc list-inside mb-2',
-        ol: 'list-decimal list-inside mb-2',
+        ul: 'editor-list-ul',
+        ol: 'editor-list-ol',
         nested: {
-          listitem: 'ml-4'
+          listitem: 'editor-nested-listitem'
         }
       },
-      link: 'text-blue-600 underline hover:text-blue-800',
+      link: 'editor-link',
       text: {
-        bold: 'font-bold',
-        italic: 'italic',
-        underline: 'underline',
-        strikethrough: 'line-through',
-        code: 'bg-gray-200 px-1 rounded font-mono text-sm',
+        bold: 'editor-text-bold',
+        italic: 'editor-text-italic',
+        underline: 'editor-text-underline',
+        strikethrough: 'editor-text-strikethrough',
+        code: 'editor-text-code',
       },
-      code: 'bg-gray-800 text-white p-4 rounded font-mono text-sm block my-2',
+      code: 'editor-code',
     },
     nodes: [
       HeadingNode,
@@ -114,11 +114,17 @@ export function LexicalEditor({ htmlContent, onEditorStateChange }: LexicalEdito
       <div className="relative">
         <RichTextPlugin
           contentEditable={
-            <ContentEditable className="outline-none min-h-[400px] p-4 focus:outline-none" />
+            <ContentEditable
+              className="outline-none min-h-[400px] p-4 focus:outline-none"
+              style={{ color: 'var(--cyber-text)' }}
+            />
           }
           placeholder={
-            <div className="absolute top-4 left-4 text-gray-400 pointer-events-none">
-              输入 HTML 后将在此处显示渲染结果...
+            <div
+              className="absolute top-4 left-4 pointer-events-none text-sm"
+              style={{ color: 'var(--cyber-text-dim)', fontFamily: "'Share Tech Mono', monospace" }}
+            >
+              {'// 输入 HTML 后将在此处显示渲染结果...'}
             </div>
           }
           ErrorBoundary={LexicalErrorBoundary}
